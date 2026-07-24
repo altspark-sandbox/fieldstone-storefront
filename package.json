@@ -1,0 +1,14 @@
+{
+  "name": "fieldstone-storefront",
+  "version": "1.2.0",
+  "private": true,
+  "description": "Fieldstone Supply Co. storefront (sample)",
+  "license": "MIT",
+  "scripts": {
+    "test": "node test/run.js"
+  },
+  "dependencies": {
+    "lodash": "4.17.15",
+    "minimist": "1.2.0"
+  }
+}
