@@ -1,0 +1,14 @@
+{
+  "name": "@altspark-sandbox/fieldstone-sku-utils",
+  "version": "0.1.0",
+  "description": "Tiny SKU helpers for Fieldstone Supply Co. (sandbox sample package)",
+  "main": "index.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/altspark-sandbox/fieldstone-storefront.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}

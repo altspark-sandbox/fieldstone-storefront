@@ -1,0 +1,57 @@
+name: Manual sample run
+on:
+  workflow_dispatch:
+    inputs:
+      outcome:
+        description: success, failure or slow (slow sleeps so it can be cancelled)
+        type: choice
+        options: [success, failure, slow]
+        default: success
+      deploy:
+        description: Also run the deploy job against the staging environment
+        type: boolean
+        default: false
+concurrency:
+  group: manual-${{ github.ref }}-${{ inputs.outcome }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: .sample-cache
+          key: fieldstone-sample-${{ inputs.outcome }}-${{ github.run_number }}
+          restore-keys: fieldstone-sample-
+      - name: Make files
+        run: |
+          mkdir -p .sample-cache out
+          date -u > .sample-cache/stamp.txt
+          echo "sku,qty" > out/pick-list.csv
+          echo "FS-TARP-12,4" >> out/pick-list.csv
+          echo "Run vars: env=${{ vars.FIELDSTONE_ENV }} region=${{ vars.WAREHOUSE_REGION }}"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pick-list-${{ inputs.outcome }}
+          path: out/
+          retention-days: 30
+      - name: Outcome
+        run: |
+          if [ "${{ inputs.outcome }}" = "failure" ]; then echo "failing on purpose"; exit 1; fi
+          if [ "${{ inputs.outcome }}" = "slow" ]; then sleep 120; fi
+          echo done
+  deploy:
+    if: ${{ inputs.deploy }}
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    environment:
+      name: staging
+      url: https://staging.fieldstone.example.com
+    steps:
+      - run: echo "pretend deploy (secret length ${#S})"
+        env:
+          S: ${{ secrets.STAGING_DEPLOY_TOKEN }}
